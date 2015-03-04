@@ -6,8 +6,8 @@ import opentxs
 from pyopentxs import market
 from pyopentxs import notary
 
-notary.config.read()
-cron_interval = int(int(notary.config.parser['cron']['ms_between_cron_beats']) / 1000 * 1.5)
+# notary.config.read()
+# cron_interval = int(int(notary.config.parser['cron']['ms_between_cron_beats']) / 1000 * 1.5)
 
 
 @pytest.fixture

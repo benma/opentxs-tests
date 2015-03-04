@@ -31,48 +31,12 @@ def setup(contract_stream, total_servers=1):
     Only the first server will actually exist, the rest will appear as offline.
     '''
     pyopentxs.init()
-    server_nym = nym.Nym().create()
-
-    contract = contract_stream.read()
-    contract_stream.close()
-
-    server_contract_id, cached_key, decoded_signed_contract \
-        = make_server_contract(contract, server_nym)
-
-    walletxml = decode(open(config_dir + "client_data/wallet.xml"))
-    cached_key = BeautifulSoup(walletxml).wallet.cachedkey.string.strip()
-    signed_contract_file = config_dir + "client_data/contracts/" + server_contract_id
-    with closing(open(signed_contract_file)) as f:
-        signed_contract = f.read()
-    decoded_signed_contract = decode(io.StringIO(signed_contract))
-
-    # copy the credentials to the server
-    server_data_dir = config_dir + "server_data/"
-    if not os.path.exists(server_data_dir):
-        os.mkdir(server_data_dir)
-    shutil.copytree(config_dir + "client_data/credentials", server_data_dir + "credentials")
-    # remove the client-side data
-    shutil.rmtree(config_dir + "client_data")
-
-    # reread the client data (empty)
-    pyopentxs.init()
-    print("reread client data")
-    # since we still don't have programmatic access, just write the info
-    # to use later to pipe to the notary process
-    output = io.BytesIO()
-    writeit = lambda s: output.write(s.encode("utf-8"))
-    writeit(server_contract_id + "\n")
-    writeit(server_nym._id + "\n")
-    writeit(cached_key + "\n~\n~\n")
-    writeit(decoded_signed_contract + "\n~\n")
-
-    # the following crashes the process, so we pipe the info manually
-    # opentxs.MainFile(None).CreateMainFile(signed_contract, server_contract_id, "", server_nym,
-    # cached_key)
-
-    # add the server contract on the client side
+    
+    decoded_signed_contract = open('/home/marko/go/src/github.com/monetas/notary/cmd/create_contract/contract.otc').read()
+    server_contract_id = open('/home/marko/go/src/github.com/monetas/notary/cmd/create_contract/notaryID').read().strip()
+    
     opentxs.OTAPI_Wrap_AddServerContract(decoded_signed_contract)
-
+    
     # should be just one known active server now
     server.active = [server_contract_id]
 
@@ -80,9 +44,6 @@ def setup(contract_stream, total_servers=1):
     for _ in range(total_servers - 1):
         opentxs.OTAPI_Wrap_AddServerContract(
             make_server_contract(contract, nym.Nym().create())[2])
-
-    return output
-
 
 def restart():
     # pyopentxs.cleanup()
