@@ -1,3 +1,4 @@
+import os
 import pytest
 import pyopentxs
 
@@ -13,7 +14,11 @@ def notary_setup(pytestconfig):
     if ver == 1:
         # goatary
         from pyopentxs import goatary
-        contract_dir = goatary.create_server_contract()
+        if os.environ.get('DOCKER'):
+            # The running notary docker already has a test contract.
+            contract_dir = ''
+        else:
+            contract_dir = goatary.create_server_contract()
         pyopentxs.create_fresh_wallet()
         goatary.start_notary(contract_dir)
         goatary.add_server_contract(contract_dir)

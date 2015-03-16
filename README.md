@@ -78,6 +78,14 @@ cd ~/workspace/opentxs-tests/python3
 ./runtests.py --notary-version 1 -m goatary
 ```
 
+## Docker
+
+```shell
+docker build --force-rm -t opentxs-tests .
+# Link a running notary docker container named "notary".
+docker run --rm -it --link notary:notary opentxs-tests
+```
+
 ## Logs
 
 The `opentxs-notary` stdout will be redirected to
